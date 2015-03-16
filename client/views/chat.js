@@ -1,6 +1,8 @@
 var _ = require('lodash');
 var React = require('react');
 
+var ENTER_KEY = 13;
+
 var ChatMessages = React.createClass({
   getInitialState: function() {
     return {
@@ -28,7 +30,7 @@ var ChatMessages = React.createClass({
           message_list: fetched_messages
         });
       }
-    })
+    });
   },
   render: function() {
     console.log('ChatMessages.render called, message_list is', this.state.message_list);
@@ -56,20 +58,64 @@ var ChatMessages = React.createClass({
 })
 
 var ChatMessageForm = React.createClass({
+  handleKeyDown: function(e) {
+    if (e.which === ENTER_KEY) {
+      e.preventDefault();
+      this.handleSubmit();
+    }
+  },
+  handleSubmit: function() {
+    var message_input = this.refs.message.getDOMNode();
+    var message = message_input.value;
+    if (_.isEmpty(message)) {
+      console.warn('handleSubmit called when message is', false);
+    }
+    else {
+      message_input.value = '';
+      this.props.onSubmit(message);
+    }
+  },
   render: function() {
     var room = this.props.room;
     console.log('ChatMessageForm.render called, room is', room);
-    return <div>This will be a form that submits messages to the room named {room}.</div>
+    return (
+      <form>
+        <input
+          ref="message"
+          placeholder="Message"
+          onKeyDown={this.handleKeyDown}
+        />
+      </form>
+    );
   }
 })
 
 var ChatView = React.createClass({
+  sendMessage: function(message) {
+    var sender = this.props.sender;
+    var messages = this.props.messages;
+    console.log('in sendMessage', sender, message, messages);
+    messages.create({
+      sender: sender,
+      message: message
+    }, function(create_err, new_message, asdf) {
+      if (create_err || ! _.isObject(new_message)) {
+        console.error('messages.create returns', create_err, new_message);
+      }
+      else {
+        console.log('new message created:', new_message.toObject());
+      }
+    });
+  },
   render: function() {
     console.log('ChatView.render called with props:', this.props);
     return (
       <div>
         <ChatMessages messages={this.props.messages} />
-        <ChatMessageForm room={this.props.room} />
+        <ChatMessageForm
+          room={this.props.room}
+          onSubmit={this.sendMessage}
+        />
       </div>
     );
   }

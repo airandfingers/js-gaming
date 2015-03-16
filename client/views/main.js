@@ -33,7 +33,11 @@ module.exports = {
         /*models.collections.message.find(function(find_err, messages) {
             if (find_err) throw find_err;*/
             React.render(
-                <ChatView messages={models.collections.message} room="lobby" />,
+                <ChatView
+                    messages={models.collections.message}
+                    room="lobby"
+                    sender="airandfingers"
+                />,
                 el
             );
         //});

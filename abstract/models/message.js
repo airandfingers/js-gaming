@@ -1,5 +1,3 @@
-var Waterline = require('waterline');
-
 module.exports = {
   identity: 'message',
   attributes: {
@@ -13,7 +11,11 @@ module.exports = {
     },
     timestamp: {
       type: 'date',
-      required: true
-    },
+      //required: true,
+      defaultsTo: function() {
+        console.log('timestamp defaultsTo called');
+        return new Date();
+      }
+    }
   }
 };
