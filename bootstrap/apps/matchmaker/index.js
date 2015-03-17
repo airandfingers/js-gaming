@@ -1,5 +1,6 @@
 
 var _ = require("lodash");
+var random = require(__root+"/abstract/random-gen");
 
 /*
 
@@ -43,7 +44,7 @@ MatchMaker.prototype.addUser = function(user,query,res,next){
   var games = applyGameQuery(this.games, query);
   var l = games.length;
   if(!l) return next(new Error("404"));
-  var item = {user:user,query:query,games:games,res:res};
+  var item = {id:user.id,user:user,query:query,games:games,res:res};
   if(!query.joinInProgress || !this.needing_players.length){
     return this.addToWaitingList(item,next);
   }
@@ -84,7 +85,7 @@ MatchMaker.prototype.addToWaitingList = function(userItem,next){
 MatchMaker.prototype.checkForMatch = function(){
   if(this.isChecking) return;
   this.isChecking = true;
-  process.nextTick(this.checkForMatchAsync.bind(this));
+  setImmediate(this.checkForMatchAsync.bind(this));
 };
 MatchMaker.prototype.checkForMatchAsync = function(){
   var l, ll;
@@ -104,7 +105,7 @@ MatchMaker.prototype.checkForMatchAsync = function(){
       if(players.length < game.min_players) continue;
       while(players.length > game.max_players) players.pop();
 
-      process.nextTick(this.checkForMatchAsync.bind(this));
+      setImmediate(this.checkForMatchAsync.bind(this));
       return this.createMatch(players,game);
     }
   }
@@ -113,14 +114,14 @@ MatchMaker.prototype.checkForMatchAsync = function(){
 
 MatchMaker.prototype.createMatch = function(players, game){
   var i, l;
-  var match_id = Date.now()+"_"+Math.random();
+  var match_id = random();
+  console.log("creating match");
   for(i=0, l = players.length;i<l;i++){
-    console.log(players[i]);
     players[i].res(void(0),{game:game.name, match:match_id});
     this.removeUser(players[i]);
     players[i] = players[i].user;
   }
-  return game.dup.trigger("match",{match_id:match_id, players:players});
+  return game.fork.trigger("match",{match_id:match_id, players:players});
 };
 
 MatchMaker.prototype.needPlayer = function(matchInfo, game){
@@ -153,10 +154,13 @@ MatchMaker.prototype.deadGame = function(matchid, name){
 };
 
 function applyPlayerQuery (players, query) {
+  console.log(players);
+  var ret = _.uniq(players,"id");
+  console.log(ret);
   if(query && query.player){
-    return _.filter(players, {user:query.player});
+    return _.filter(ret, {user:query.player});
   }
-  return players.slice(0);
+  return ret;
 }
 
 function applyGameQuery (games, query) {

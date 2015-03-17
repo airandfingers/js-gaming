@@ -46,7 +46,7 @@ MessageWriter.prototype.stop = function(){
 
 MessageWriter.prototype.returnMessage = function (message) {
   if (this.getListeners(message.id).length === 0)
-    throw new Error("non Existant Message");
+    throw new Error("non Existant Message: "+JSON.stringify(message));
   this.emit(message.id, message.error,message.data);
 };
 
@@ -56,6 +56,10 @@ MessageWriter.prototype.trigger = function(name,data){
 };
 
 MessageWriter.prototype.get = function (name, data, cb) {
+  if(typeof data == "function"){
+    cb = data;
+    data = void(0);
+  }
 	var cr = callprom(this,cb);
   // save callback so we can call it when receiving the reply
 	this._send(this.templateFactory("get", name, cr.cb), data);
@@ -98,6 +102,7 @@ MessageWriter.prototype._send = function(template,data){
 		this.wSendFn(clone);
 	}else{
 		//if there is an error queue it for later when socket connects
+    console.log("queueing");
 		this.queue.push(clone);
 	}
 };
