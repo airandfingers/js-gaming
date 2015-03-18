@@ -26,7 +26,7 @@ module.exports = {
         'model.fullName': '[data-hook~=name]'
     },*/
     render: function (el, models) {
-        console.log('MainView.render called with', el, models);
+        //console.log('MainView.render called with', el, models);
         // some additional stuff we want to add to the document head
         document.head.appendChild(domify(templates.head()));
 

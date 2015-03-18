@@ -7,7 +7,7 @@ var httpserver = require("./httpserver");
 var wsserver = require("./wsserver");
 
 var appserver = require("./apps")();
-var chatroom = require("./chatroom");
+var chatroom = require("./chatroom")(database.orm);
 var userserver = require("./user");
 //var matchmaker = require("./matchmaker");
 

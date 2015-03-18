@@ -1,12 +1,9 @@
 var Waterline = require('waterline');
-var moment = require('moment');
-
+var stdSchema = require('app/abstract/waterline');
 var message_schema = require('app/abstract/models/message');
+
+console.log('schema is', message_schema);
 
 message_schema.connection = 'rest';
 
-message_schema.attributes.readableTimestamp = function() {
-    return moment(this.timestamp).fromNow();
-};
-
-module.exports = Waterline.Collection.extend(message_schema);
+module.exports = Waterline.Collection.extend(stdSchema(message_schema));

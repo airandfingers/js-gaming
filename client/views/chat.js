@@ -3,7 +3,7 @@ var React = require('react');
 
 var ENTER_KEY = 13;
 
-var ChatMessages = React.createClass({
+var ChatMessageList = React.createClass({
   getInitialState: function() {
     return {
       message_list: undefined
@@ -12,9 +12,8 @@ var ChatMessages = React.createClass({
   componentDidMount: function() {
     var self = this;
     var messages = this.props.messages;
-    console.log('ChatMessages.componentDidMount called, messages is', messages);
     if (! _.isObject(messages) || ! _.isFunction(messages.find)) {
-      console.error('ChatMessages without messages!', messages);
+      console.error('ChatMessageList without messages!', messages);
       return;
     }
     messages.find({}, function(find_err, fetched_messages) {
@@ -22,7 +21,7 @@ var ChatMessages = React.createClass({
         console.error('messages.find returns', find_err, fetched_messages);
       }
       else if (! self.isMounted()) {
-        console.warn('ChatMessages no longer mounted whe messages.find returns');
+        console.warn('ChatMessageList no longer mounted whe messages.find returns');
       }
       else {
         console.log('setting fetched_messages to', fetched_messages);
@@ -31,9 +30,16 @@ var ChatMessages = React.createClass({
         });
       }
     });
+    messages.after('create', function(new_message, next) {
+      console.log('messages.afterCreate called with', new_message);
+      new_message = new messages._model(new_message);
+      self.state.message_list.push(new_message);
+      self.forceUpdate();
+      next();
+    });
   },
   render: function() {
-    console.log('ChatMessages.render called, message_list is', this.state.message_list);
+    //console.log('ChatMessageList.render called, message_list is', this.state.message_list);
     var messages_markup;
     if (! _.isArray(this.state.message_list)) {
       messages_markup = '';
@@ -41,16 +47,16 @@ var ChatMessages = React.createClass({
     else {
       messages_markup = this.state.message_list.map(function(message) {
         return (
-          <div>
+          <div key={message.id}>
             <strong>{message.sender}:</strong> 
             <span>{message.message}</span>
-            <span class="float-right">{message.readableTimestamp()}</span>
+            <span className="float-right">{message.readableTimestamp()}</span>
           </div>
         );
       });
     }
     return (
-      <div class="chat_messages">
+      <div className="chat_messages">
         {messages_markup}
       </div>
     );
@@ -77,7 +83,7 @@ var ChatMessageForm = React.createClass({
   },
   render: function() {
     var room = this.props.room;
-    console.log('ChatMessageForm.render called, room is', room);
+    //console.log('ChatMessageForm.render called, room is', room);
     return (
       <form>
         <input
@@ -94,7 +100,7 @@ var ChatView = React.createClass({
   sendMessage: function(message) {
     var sender = this.props.sender;
     var messages = this.props.messages;
-    console.log('in sendMessage', sender, message, messages);
+    //console.log('in sendMessage', sender, message, messages);
     messages.create({
       sender: sender,
       message: message
@@ -102,16 +108,15 @@ var ChatView = React.createClass({
       if (create_err || ! _.isObject(new_message)) {
         console.error('messages.create returns', create_err, new_message);
       }
-      else {
-        console.log('new message created:', new_message.toObject());
-      }
     });
   },
   render: function() {
-    console.log('ChatView.render called with props:', this.props);
+    //console.log('ChatView.render called with props:', this.props);
     return (
       <div>
-        <ChatMessages messages={this.props.messages} />
+        <ChatMessageList
+          ref="chatMessageList"
+          messages={this.props.messages} />
         <ChatMessageForm
           room={this.props.room}
           onSubmit={this.sendMessage}

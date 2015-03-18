@@ -1,30 +1,13 @@
 var Waterline = require('waterline');
-var moment = require("moment");
-var stdSchema = require(__dirname+"/../database/abstract/waterline");
+var stdSchema = require('app/abstract/waterline');
+var message_schema = require('app/abstract/models/message');
 
+message_schema.connection = 'database';
+message_schema.tableName = 'messages';
 
-module.exports = Waterline.Collection.extend(stdSchema({
-  // Define a custom table name
-  connection: "database",
-  identity: 'message',
-  tableName: 'messages',
-  schema: true,
-  attributes: {
-    sender: {
-      type: 'string',
-      required: true
-    },
-    message: {
-      type: 'string',
-      required: true
-    },
-    timestamp: {
-      type: 'string',
-      required: true,
-      defaultsTo:Date.now
-    },
-    readableTimeStamp: function(){
-      return moment(this.timestamp).fromNow();
-    }
-  }
-}));
+message_schema.attributes.timestamp.defaultsTo = function() { return new Date(); }
+
+module.exports = function(waterline) {
+  var MessageCollection = Waterline.Collection.extend(stdSchema(message_schema));
+  waterline.loadCollection(MessageCollection);
+}

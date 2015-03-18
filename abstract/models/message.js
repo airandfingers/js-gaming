@@ -1,3 +1,5 @@
+var moment = require('moment');
+
 module.exports = {
   identity: 'message',
   attributes: {
@@ -10,12 +12,10 @@ module.exports = {
       required: true
     },
     timestamp: {
-      type: 'date',
-      //required: true,
-      defaultsTo: function() {
-        console.log('timestamp defaultsTo called');
-        return new Date();
-      }
+      type: 'date'
+    },
+    readableTimestamp: function() {
+      return moment(this.timestamp).fromNow();
     }
   }
 };

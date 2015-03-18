@@ -20,12 +20,11 @@ ModelCompiler.prototype.collect = function(next){
   var adapters = {};
   adapters[adapter_name] = RestAdapter;
   var connections = self.config.connections;
-  console.log('connections is', connections);
   self.orm.initialize({
     adapters: adapters,
     connections: connections
   }, function(err, models) {
-    console.log(self.config, 'initialize returns', err, models);
+    //console.log('initialize returns', err, models);
     self.collections = models.collections;
     self.connections = models.connections;
     cbret.cb(void(0));

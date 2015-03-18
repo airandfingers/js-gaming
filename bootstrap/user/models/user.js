@@ -1,5 +1,5 @@
 var Waterline = require('waterline');
-var stdSchema = require(__dirname+"/../../database/abstract/waterline");
+var stdSchema = require('app/abstract/waterline');
 
 var User = Waterline.Collection.extend(stdSchema({
   // Define a custom table name

@@ -18,21 +18,6 @@ function ModelCompiler(config) {
   this.models = {};
 }
 
-ModelCompiler.prototype.addCollection = function(schema){
-  var t = typeof schema;
-  if(t == "string"){
-    try {
-      schema = require(schema);
-    }catch(e){
-      console.error('Error while requiring or loading ' + schema, e);
-    }
-  }
-  if(t == "object" ){
-    this.orm.loadCollection(model);
-    this.models[schema.tablename] = model;
-  }
-};
-
 ModelCompiler.prototype.connect = function(next){
   var cbret = cbpr(this, next);
   var self = this;
@@ -45,19 +30,6 @@ ModelCompiler.prototype.connect = function(next){
     self.collections = models.collections;
     self.connections = models.connections;
     cbret.cb(void(0));
-  });
-  return cbret.ret;
-};
-
-ModelCompiler.prototype.collect = function(next){
-  var self = this;
-  var cbret = cbpr(this, next);
-
-  fs.readdir(__dirname + "/models", function(err,files) {
-    if (err) return cbret.cb(err);
-    files.forEach(function(file_name) {
-      self.addCollection(__dirname+"/models/"+file_name);
-    });
   });
   return cbret.ret;
 };
