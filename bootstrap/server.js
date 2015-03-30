@@ -11,6 +11,13 @@ var chatroom = require("./chatroom")(database.orm);
 var userserver = require("./user");
 //var matchmaker = require("./matchmaker");
 
+var routePaths = {
+  apps: '/apps',
+  api: '/api',
+  user: '/auth',
+  match: '/match',
+  index: '/temp'
+};
 
 console.log("Database finished");
 userserver = userserver(database.orm);
@@ -30,15 +37,9 @@ userserver.collect(function(e,providers){
       // Enable Sessions and cookies
       // -----------------
       httpserver
-      .get("/api.js",require(__root+"/abstract/messageAPI.js"))
+      .get("/api.js",require("app/abstract/messageAPI.js"))
       .use(function(req,res,next){
-        res.locals.routePaths = {
-          apps:"/apps",
-          api:"/api",
-          user:"/auth",
-          match:"/match",
-          index:"/temp",
-        };
+        res.locals.routePaths = routePaths;
         next();
       })
       .use(userserver.middleware)
@@ -48,11 +49,11 @@ userserver.collect(function(e,providers){
 
       // listen for incoming http requests on the port as specified in our config
       httpserver
-      .use("/apps",appserver.router)
-      .use("/api",database.getRouter())
-      .use("/auth",userserver.router)
-//      .use("/match",matchmaker.router)
-      .use('/temp', function(req,res,next){
+      .use(routePaths.apps,appserver.router)
+      .use(routePaths.api,database.getRouter())
+      .use(routePaths.user,userserver.router)
+//      .use(routePaths.match,matchmaker.router)
+      .use(routePaths.index, function(req,res,next){
         res.render("generic");
       });
       test.routes(httpserver);

@@ -1,29 +1,24 @@
 var config = require('getconfig');
+var serveStatic = require('serve-static');
 var semiStatic = require('semi-static');
 var path = require('path');
-var helmet = require('helmet');
-var Moonboots = require('moonboots-express');
-var templatizer = require('templatizer');
-var stylizer = require('stylizer');
-
 
 // a little helper for fixing paths for various environments
 var fixPath = function (pathString) {
   return path.resolve(path.normalize(pathString));
 };
 
-module.exports.middleware = function(app){
+module.exports.middleware = function(app) {
   // in order to test this with spacemonkey we need frames
-  if (!config.isDev) {
+  if (! config.isDev) {
     app.use(helmet.xframe());
   }
-  app.use(helmet.xssFilter());
-  app.use(helmet.nosniff());
+  app.use(serveStatic(fixPath('test/assets')));
+  app.use(serveStatic(fixPath('test/spacemonkey')));
 };
 
 
-module.exports.routes = function(app){
-
+module.exports.routes = function(app) {
   // -----------------
   // Enable the functional test site in development
   // -----------------

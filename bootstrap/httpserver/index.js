@@ -4,6 +4,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var compress = require('compression');
 var config = require('getconfig');
+var helmet = require('helmet');
 var serveStatic = require('serve-static');
 var app = express();
 
@@ -12,11 +13,16 @@ var fixPath = function (pathString) {
   return path.resolve(path.normalize(pathString));
 };
 
-
 // -----------------
 // Configure express
 // -----------------
 app.use(compress());
+// in order to test this with spacemonkey we need frames
+if (! config.isDev) {
+  app.use(helmet.xframe());
+}
+app.use(helmet.xssFilter());
+app.use(helmet.nosniff());
 // -----------------
 // Set our client config cookie
 // -----------------

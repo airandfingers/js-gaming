@@ -24,4 +24,5 @@ node_modules/*
 
 *.rdb
 
-public/bundle.js
+public/js/bundle.js
+public/css/bundle.css

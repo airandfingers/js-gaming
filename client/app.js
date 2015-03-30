@@ -14,6 +14,7 @@ module.exports = {
     // this is the the whole app initter
     blastoff: function () {
         var self = window.app = this;
+        console.log('meow!');
 
         // init our URL handlers and the history tracker
         this.router = new Router();
